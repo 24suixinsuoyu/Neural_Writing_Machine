@@ -88,7 +88,7 @@ class Model():
 	self.var_op = tf.global_variables()
 	self.saver = tf.train.Saver(self.var_op,max_to_keep=5,keep_checkpoint_every_n_hours=1)
 
-    def sample(self, sess, words, vocab, num=200, start=u'我们', sampling_type=1):
+    def sample(self, sess, words, vocab, num=200, start=u'从前', sampling_type=1):
 
 	state = sess.run(self.cell.zero_state(1, tf.float32))
         for word in start:
