@@ -288,7 +288,7 @@ def random_pick(p,word,sampling_type):
     elif sampling_type == 'weighted': 
         sample = weighted_pick(p)
     elif sampling_type == 'combined':
-        if word == ' ':
+        if word == u'。':
             sample = weighted_pick(p)
         else:
     	    sample = np.argmax(p)
