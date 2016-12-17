@@ -21,6 +21,7 @@ date:2016-12-07
 import tensorflow as tf
 from tensorflow.python.ops import rnn_cell
 from tensorflow.python.ops import seq2seq
+from decoder import attention_decoder
 
 import numpy as np
 import datetime
@@ -48,6 +49,9 @@ class Model():
         self.input_data = tf.placeholder(tf.int32, [args.batch_size, args.seq_length])
         self.targets = tf.placeholder(tf.int32, [args.batch_size, args.seq_length])
         self.initial_state = self.cell.zero_state(args.batch_size, tf.float32)
+	self.attn_length = 5
+	self.attn_size = 32
+	self.attention_states = tf.placeholder(tf.float32,[args.batch_size, self.attn_length, self.attn_size]) 
         with tf.variable_scope('rnnlm'):
             softmax_w = build_weight([args.rnn_size, args.vocab_size],name='soft_w')
             softmax_b = build_weight([args.vocab_size],name='soft_b')
@@ -62,10 +66,7 @@ class Model():
 	if not args.attention:
             outputs, last_state = seq2seq.rnn_decoder(inputs_list, self.initial_state, self.cell, loop_function=loop if infer else None, scope='rnnlm')
 	else:
-	    self.attn_length = 5
-	    self.attn_size = 32
-	    self.attention_states = build_weight([args.batch_size, self.attn_length, self.attn_size]) 
-            outputs, last_state = seq2seq.attention_decoder(inputs_list, self.initial_state, self.attention_states, self.cell, loop_function=loop if infer else None, scope='rnnlm')
+            outputs, last_state = attention_decoder(inputs_list, self.initial_state, self.attention_states, self.cell, loop_function=loop if infer else None, scope='rnnlm')
 
         self.final_state = last_state
         output = tf.reshape(tf.concat(1, outputs), [-1, args.rnn_size])
@@ -91,14 +92,14 @@ class Model():
     def sample(self, sess, words, vocab, num=200, start=u'从前', sampling_type=1):
 
 	state = sess.run(self.cell.zero_state(1, tf.float32))
+        attention_states = sess.run(tf.truncated_normal([1, self.attn_length, self.attn_size],stddev=0.1,dtype=tf.float32))
         for word in start:
             x = np.zeros((1, 1))
             x[0, 0] = words[word]
-	    if not self.args.attention:
-                feed = {self.input_data: x, self.initial_state:state}
-                [probs, state] = sess.run([self.probs, self.final_state], feed)
+	    if self.args.attention is True:
+	        feed = {self.input_data: x, self.initial_state:state, self.attention_states:attention_states}
+                [probs, state, attention_states] = sess.run([self.probs, self.final_state, self.attention_states], feed)
 	    else:
-		# TO BE UPDATED
                 feed = {self.input_data: x, self.initial_state:state}
                 [probs, state] = sess.run([self.probs, self.final_state], feed)
 	    
@@ -107,14 +108,13 @@ class Model():
         for n in range(num):
             x = np.zeros((1, 1))
             x[0, 0] = words[word]
-	    if not self.args.attention:
+	    if self.args.attention is True:
+	        feed = {self.input_data: x, self.initial_state:state, self.attention_states:attention_states}
+                [probs, state, attention_states] = sess.run([self.probs, self.final_state, self.attention_states], feed)
+	    else:
                 feed = {self.input_data: x, self.initial_state:state}
                 [probs, state] = sess.run([self.probs, self.final_state], feed)
-	    else:
-                feed = {self.input_data: x, self.initial_state:state,self.attention_states:attention_states}
-                [probs, state] = sess.run([self.probs, self.final_state], feed)
             p = probs[0]
-
 	    sample = random_pick(p,word,sampling_type)
             pred = vocab[sample]
             ret += pred

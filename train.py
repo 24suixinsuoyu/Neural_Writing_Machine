@@ -23,6 +23,7 @@ from preprocess import TextParser
 from seq2seq_rnn import Model as Model_rnn
 from utils import count_params
 from utils import logging
+from utils import build_weight
 
 import argparse
 import time
@@ -57,7 +58,7 @@ class Trainer():
         parser.add_argument('--rnncell', default='lstm',
                        help='set the cell of rnn, eg. rnn, gru, or lstm')
 
-        parser.add_argument('--attention', type=bool, default=False,
+        parser.add_argument('--attention', type=bool, default=True,
                        help='set attention mode or not')
 
         parser.add_argument('--batch_size', type=int, default=64,
@@ -81,10 +82,10 @@ class Trainer():
         parser.add_argument('--decay_rate', type=float, default=0.95,
                        help='set decay rate for rmsprop')                       
 
-        parser.add_argument('--keep', type=bool, default=True,
+        parser.add_argument('--keep', type=bool, default=False,
 		       help='init from trained model')
 
-	parser.add_argument('--pretrained', type=bool, default=True,
+	parser.add_argument('--pretrained', type=bool, default=False,
 		       help='init from pre-trained model')
 
         args = parser.parse_args()
@@ -95,8 +96,10 @@ class Trainer():
 	'''
 	if args.attention is True:
 	    print('attention mode')
+	    '''
 	    args.save_dir = './save/atten/'
 	    args.log_dir = './log/atten/'
+	    '''
         text_parser = TextParser(args)
         args.vocab_size = text_parser.vocab_size
 	if args.pretrained is True:
@@ -158,15 +161,20 @@ class Trainer():
             for e in range(args.num_epochs):
                 start = time.time()
                 sess.run(tf.assign(model.lr, args.learning_rate * (args.decay_rate ** e)))
-                #sess.run(tf.assign(model.lr, args.learning_rate))
 	        model.initial_state = tf.convert_to_tensor(model.initial_state) 
                 state = model.initial_state.eval()
+		attention_states = sess.run(tf.truncated_normal([args.batch_size, model.attn_length, model.attn_size],stddev=0.1,dtype=tf.float32))
 		total_loss = []
                 for b in range(text_parser.num_batches):
                     x, y = text_parser.next_batch()
-		    print('flag')
-                    feed = {model.input_data: x, model.targets: y, model.initial_state: state}
+
+		    if args.attention is True:
+	                feed = {model.input_data: x, model.targets: y, model.initial_state: state, model.attention_states:attention_states}
+	    	    else:
+                        feed = {model.input_data: x, model.targets: y, model.initial_state: state}
+
                     train_loss, state, _ = sess.run([model.cost, model.final_state, model.train_op], feed)
+
 		    total_loss.append(train_loss)
                     print("{}/{} (epoch {}), train_loss = {:.3f}" \
                                 .format(e * text_parser.num_batches + b, \
