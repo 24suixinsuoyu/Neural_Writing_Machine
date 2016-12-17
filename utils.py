@@ -35,6 +35,10 @@ common function list:
 	build_forward_layer(inpt,shape,kernel='relu',name_scope='fc1')
 	build_conv_layer(inpt,filter_shape,stride,name=None)	
 '''
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import time
 from functools import wraps
 import os

@@ -15,6 +15,12 @@ author:
      
 date:2016-12-01
 '''
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
+import sys
+sys.dont_write_bytecode = True
 
 import numpy as np
 import tensorflow as tf

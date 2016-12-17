@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 ''' decoder for sequence-to-sequence learning for lyrics generation or
-    automatic speech recognition
+    automatic speech recognition, revised from tensorflow source code,
+    this code will be updated later to include some other features.
 author:
 
       iiiiiiiiiiii            iiiiiiiiiiii         !!!!!!!             !!!!!!    
