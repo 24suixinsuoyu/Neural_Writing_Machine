@@ -25,6 +25,7 @@ from __future__ import print_function
 from six.moves import xrange  
 from six.moves import zip    
 
+import tensorflow as tf
 from tensorflow.python.framework import dtypes
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
@@ -290,7 +291,7 @@ def attention_decoder(decoder_inputs,
   if output_size is None:
     output_size = cell.output_size
 
-  with variable_scope.variable_scope(
+  with tf.variable_scope(
       scope or "attention_decoder", dtype=dtype) as scope:
     dtype = scope.dtype
     batch_size = array_ops.shape(decoder_inputs[0])[0]  # Needed for reshaping.
@@ -301,9 +302,9 @@ def attention_decoder(decoder_inputs,
     v = []
     attention_vec_size = attn_size  
     for a in xrange(num_heads):
-      k = variable_scope.get_variable("AttnW_%d" % a,[1, 1, attn_size, attention_vec_size])
+      k = tf.get_variable("AttnW_%d" % a,[1, 1, attn_size, attention_vec_size])
       hidden_features.append(nn_ops.conv2d(hidden, k, [1, 1, 1, 1], "SAME"))
-      v.append(variable_scope.get_variable("AttnV_%d" % a, [attention_vec_size]))
+      v.append(tf.get_variable("AttnV_%d" % a, [attention_vec_size]))
     state = initial_state
 
     def attention(query):
@@ -317,7 +318,7 @@ def attention_decoder(decoder_inputs,
             assert ndims == 2
         query = array_ops.concat(1, query_list)
       for a in xrange(num_heads):
-        with variable_scope.variable_scope("Attention_%d" % a):
+        with tf.variable_scope("Attention_%d" % a):
           y = linear(query, attention_vec_size, True)
           y = array_ops.reshape(y, [-1, 1, 1, attention_vec_size])
           s = math_ops.reduce_sum(
@@ -341,9 +342,9 @@ def attention_decoder(decoder_inputs,
 
     for i, inp in enumerate(decoder_inputs):
       if i > 0:
-        variable_scope.get_variable_scope().reuse_variables()
+        tf.get_variable_scope().reuse_variables()
       if loop_function is not None and prev is not None:
-        with variable_scope.variable_scope("loop_function", reuse=True):
+        with tf.variable_scope("loop_function", reuse=True):
           inp = loop_function(prev, i)
       input_size = inp.get_shape().with_rank(2)[1]
       if input_size.value is None:
@@ -351,11 +352,11 @@ def attention_decoder(decoder_inputs,
       x = linear([inp] + attns, input_size, True)
       cell_output, state = cell(x, state)
       if i == 0 and initial_state_attention:
-        with variable_scope.variable_scope(variable_scope.get_variable_scope(),reuse=True):
+        with tf.variable_scope(tf.get_variable_scope(),reuse=True):
           attns = attention(state)
       else:
         attns = attention(state)
-      with variable_scope.variable_scope("AttnOutputProjection"):
+      with tf.variable_scope("AttnOutputProjection"):
         output = linear([cell_output] + attns, output_size, True)
       if loop_function is not None:
         prev = output

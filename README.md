@@ -1,8 +1,11 @@
 # jaylyrics_generation_tensorflow
-使用基于LSTM的swq2seq模型并结合注意力机制来生成周杰伦歌词，详情请关注我的微信公众号：deeplearningdigest
+使用基于LSTM的seq2seq模型并结合注意力机制来生成周杰伦歌词，详情请关注我的微信公众号：deeplearningdigest
 
 ## 训练
 `python train.py `
+
+如果要使用基于注意力的解码器，那么请在train.py文件中指定attention为True，或者在命令行使用如下：
+`python train.py attention=True `
 
 ## 抽样生成单词
 `python sample.py `
@@ -15,7 +18,9 @@
 
 `combined `:每次遇到句号时，就会根据概率分布抽样；而其余情况都是得到概率最大的汉字
 
+## 生成序列案例
 使用`从前`作为种子序列，生成歌词如下：
+
 ```
 从前笑 爱说走 晚到
 为什么我都会开错记忆不多 
