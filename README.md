@@ -5,6 +5,7 @@
 `python train.py `
 
 如果要使用基于注意力的解码器，那么请在train.py文件中指定attention为True，或者在命令行使用如下：
+
 `python train.py attention=True `
 
 ## 抽样生成单词
