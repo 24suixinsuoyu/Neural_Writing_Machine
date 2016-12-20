@@ -57,7 +57,7 @@ class TextParser():
 	'''
         with codecs.open(self.input_file, "r",encoding='utf-8') as f:
             data = f.read()
-	print data[-100:]
+	print(data[-100:])
         wordCounts = collections.Counter(data)
         self.vocab_list = [x[0] for x in wordCounts.most_common()]
         self.vocab_size = len(self.vocab_list)
@@ -79,7 +79,7 @@ class TextParser():
         self.vocab_dict = dict(zip(self.vocab_list, range(len(self.vocab_list))))
         with codecs.open(self.input_file, "r",encoding='utf-8') as f:
             data = f.read()
-	print data[-100:]
+	print(data[-100:])
 
 	self.context = np.array(list(map(self.vocab_dict.get, data)))
         np.save(self.context_file, self.context)

@@ -38,7 +38,7 @@ from seq2seq_rnn import Model
 def main():
     # get arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('--save_dir', type=str, default='save',
+    parser.add_argument('--save_dir', type=str, default='/home/pony/github/jaylyrics_generation_tensorflow/save',
                        help='model directory to store checkpointed models')
     parser.add_argument('-n', type=int, default=200,
                        help='number of words to sample')
@@ -66,11 +66,11 @@ def sample(args):
         ckpt = tf.train.get_checkpoint_state(args.save_dir)
         if ckpt and ckpt.model_checkpoint_path:
             saver.restore(sess, ckpt.model_checkpoint_path)
-	    # sample the new sequence word by word
+	    #args.start = args.start.decode('gbk')
             literature = model.sample(sess, words, vocab, args.n, args.start, args.sample)
-    with codecs.open('result/sequence.txt','a','utf-8') as f:
+    with codecs.open('/home/pony/github/jaylyrics_generation_tensorflow/result/sequence.txt','w','utf-8') as f:
         f.write(literature+'\n\n')
-    print(literature)
+    print(literature.encode('utf-8'))
 
 if __name__ == '__main__':
     main()

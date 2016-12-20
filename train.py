@@ -40,13 +40,13 @@ class Trainer():
     def __init__(self):
 
         parser = argparse.ArgumentParser()
-        parser.add_argument('--data_dir', default='./data/jay/',
+        parser.add_argument('--data_dir', default='/home/pony/github/jaylyrics_generation_tensorflow/data/jay/',
                        help='set the data directory which contains input.txt')
 
-        parser.add_argument('--save_dir', default='./save/',
+        parser.add_argument('--save_dir', default='/home/pony/github/jaylyrics_generation_tensorflow/save/',
                        help='set directory to store checkpointed models')
 
-        parser.add_argument('--log_dir', default='./log/',
+        parser.add_argument('--log_dir', default='/home/pony/github/jaylyrics_generation_tensorflow/log/',
                        help='set directory to store checkpointed models')
 
         parser.add_argument('--rnn_size', type=int, default=256,
@@ -64,7 +64,7 @@ class Trainer():
         parser.add_argument('--rnncell', default='lstm',
                        help='set the cell of rnn, eg. rnn, gru, or lstm')
 
-        parser.add_argument('--attention', type=bool, default=True,
+        parser.add_argument('--attention', type=bool, default=False,
                        help='set attention mode or not')
 
         parser.add_argument('--batch_size', type=int, default=64,
@@ -112,7 +112,7 @@ class Trainer():
 	    if args.keep is False:
 		raise ValueError('when pre-trained is True, keep must be true!')
 	    print("pretrained and keep mode...")
-            ckpt = tf.train.get_checkpoint_state("./data/pre-trained/")
+            ckpt = tf.train.get_checkpoint_state("/home/pony/github/jaylyrics_generation_tensorflow/data/pre-trained/")
 	else:
 	    ckpt = tf.train.get_checkpoint_state(args.save_dir)
 	    

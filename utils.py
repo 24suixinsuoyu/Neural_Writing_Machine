@@ -302,5 +302,5 @@ def random_pick(p,word,sampling_type):
 # test code
 if __name__=='__main__':
     for (mfcc,label) in list_dirs('/home/pony/github/data/label/*/','/home/pony/github/data/mfcc/*/'):
-	print mfcc
-	print label
+	print(mfcc)
+	print(label)
