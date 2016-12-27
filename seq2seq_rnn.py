@@ -89,12 +89,14 @@ class Model():
 	self.initial_op = tf.global_variables_initializer()
 	self.logfile = args.log_dir+str(datetime.datetime.strftime(datetime.datetime.now(),'%Y-%m-%d %H:%M:%S')+'.txt').replace(' ','').replace('/','')
 	self.var_op = tf.global_variables()
-	self.saver = tf.train.Saver(self.var_op,max_to_keep=5,keep_checkpoint_every_n_hours=1)
+	self.saver = tf.train.Saver(self.var_op,max_to_keep=4,keep_checkpoint_every_n_hours=1)
 
     def sample(self, sess, words, vocab, num=200, start=u'从前', sampling_type=1):
 
 	state = sess.run(self.cell.zero_state(1, tf.float32))
         attention_states = sess.run(tf.truncated_normal([1, self.attn_length, self.attn_size],stddev=0.1,dtype=tf.float32))
+	if type(start) is str:
+            start = unicode(start,encoding='utf-8')
         for word in start:
             x = np.zeros((1, 1))
             x[0, 0] = words[word]

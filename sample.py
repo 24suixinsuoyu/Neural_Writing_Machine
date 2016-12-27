@@ -40,9 +40,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--save_dir', type=str, default='/home/pony/github/jaylyrics_generation_tensorflow/save',
                        help='model directory to store checkpointed models')
-    parser.add_argument('-n', type=int, default=200,
+    parser.add_argument('-n', type=int, default=100,
                        help='number of words to sample')
-    parser.add_argument('--start', default=u'从前',
+    parser.add_argument('--start', default=u'圣诞节快乐',
                        help='prime text')
     parser.add_argument('--sample', type=str, default='weighted',
                        help='three choices:argmax,weighted,combined')

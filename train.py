@@ -41,7 +41,7 @@ class Trainer():
 
         parser = argparse.ArgumentParser()
         parser.add_argument('--data_dir', default='/home/pony/github/jaylyrics_generation_tensorflow/data/jay/',
-                       help='set the data directory which contains input.txt')
+                       help='set the data directory which contains new.txt')
 
         parser.add_argument('--save_dir', default='/home/pony/github/jaylyrics_generation_tensorflow/save/',
                        help='set directory to store checkpointed models')
@@ -52,7 +52,7 @@ class Trainer():
         parser.add_argument('--rnn_size', type=int, default=256,
                        help='set size of RNN hidden state')
 
-        parser.add_argument('--embedding_size', type=int, default=128,
+        parser.add_argument('--embedding_size', type=int, default=100,
                        help='set size of word embedding')
 
         parser.add_argument('--num_layers', type=int, default=1,
@@ -61,37 +61,37 @@ class Trainer():
         parser.add_argument('--model', default='seq2seq_rnn',
                        help='set the model')
 
-        parser.add_argument('--rnncell', default='lstm',
+        parser.add_argument('--rnncell', default='gru',
                        help='set the cell of rnn, eg. rnn, gru, or lstm')
 
-        parser.add_argument('--attention', type=bool, default=False,
+        parser.add_argument('--attention', type=bool, default=True,
                        help='set attention mode or not')
 
-        parser.add_argument('--batch_size', type=int, default=64,
+        parser.add_argument('--batch_size', type=int, default=128,
                        help='set minibatch size')
 
-        parser.add_argument('--seq_length', type=int, default=32,
+        parser.add_argument('--seq_length', type=int, default=16,
                        help='set RNN sequence length')
 
-        parser.add_argument('--num_epochs', type=int, default=10000,
+        parser.add_argument('--num_epochs', type=int, default=100000,
                        help='set number of epochs')
 
-        parser.add_argument('--save_every', type=int, default=1000,
+        parser.add_argument('--save_every', type=int, default=200,
                        help='set save frequency while training')
 
-        parser.add_argument('--grad_clip', type=float, default=200.,
+        parser.add_argument('--grad_clip', type=float, default=1.0,
                        help='set clip gradients when back propagation')
 
-        parser.add_argument('--learning_rate', type=float, default=0.01,
+        parser.add_argument('--learning_rate', type=float, default=0.001,
                        help='set learning rate')
 
-        parser.add_argument('--decay_rate', type=float, default=0.95,
+        parser.add_argument('--decay_rate', type=float, default=1.0,
                        help='set decay rate for rmsprop')                       
 
-        parser.add_argument('--keep', type=bool, default=False,
+        parser.add_argument('--keep', type=bool, default=True,
 		       help='init from trained model')
 
-	parser.add_argument('--pretrained', type=bool, default=False,
+	parser.add_argument('--pretrained', type=bool, default=True,
 		       help='init from pre-trained model')
 
         args = parser.parse_args()
@@ -100,6 +100,7 @@ class Trainer():
     def train(self,args):
 	''' import data, train model, save model
 	'''
+	print(args)
 	if args.attention is True:
 	    print('attention mode')
 	    '''
@@ -179,14 +180,15 @@ class Trainer():
 	    	    else:
                         feed = {model.input_data: x, model.targets: y, model.initial_state: state}
 
-                    train_loss, state, _ = sess.run([model.cost, model.final_state, model.train_op], feed)
+                    train_loss, state, lr,  _ = sess.run([model.cost, model.final_state, model.lr, model.train_op], feed)
 
 		    total_loss.append(train_loss)
+		    print("learning rate: %f" % lr)
                     print("{}/{} (epoch {}), train_loss = {:.3f}" \
                                 .format(e * text_parser.num_batches + b, \
                                 args.num_epochs * text_parser.num_batches, \
                                 e, train_loss))
-                    if (e*text_parser.num_batches+b)%args.save_every==0 or (b==text_parser.num_batches-1): 
+                    if (e*text_parser.num_batches+b)%args.save_every==0: 
                         checkpoint_path = os.path.join(args.save_dir, 'model.ckpt')
                         model.saver.save(sess, checkpoint_path, global_step = e)
                         print("model has been saved in:"+str(checkpoint_path))
@@ -194,7 +196,7 @@ class Trainer():
 		delta_time = end - start
 		ave_loss = np.array(total_loss).mean()
 		logging(model,ave_loss,e,delta_time,mode='train')
-		if ave_loss < 0.5:
+		if ave_loss < 0.1:
 		    break
 
 if __name__ == '__main__':
