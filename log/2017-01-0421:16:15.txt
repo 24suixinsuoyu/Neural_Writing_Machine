@@ -1,0 +1,6 @@
+21:24:15 01/04/17 CST
+Epoch:1 train error rate:4.0533
+Epoch:1 train time:460.170691013 s
+21:34:27 01/04/17 CST
+Epoch:2 train error rate:4.05436
+Epoch:2 train time:611.95496583 s

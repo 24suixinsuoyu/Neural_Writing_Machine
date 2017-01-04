@@ -40,7 +40,10 @@ class Trainer():
     def __init__(self):
 
         parser = argparse.ArgumentParser()
-        parser.add_argument('--data_dir', default='/home/pony/github/jaylyrics_generation_tensorflow/data/jay/',
+        parser.add_argument('--style', default='novel',
+                       help='set the type of generating sequence,egs: novel, jay, linxi, tangshi, duilian')
+
+        parser.add_argument('--data_dir', default='/home/pony/github/jaylyrics_generation_tensorflow/data/',
                        help='set the data directory which contains new.txt')
 
         parser.add_argument('--save_dir', default='/home/pony/github/jaylyrics_generation_tensorflow/save/',
@@ -49,10 +52,10 @@ class Trainer():
         parser.add_argument('--log_dir', default='/home/pony/github/jaylyrics_generation_tensorflow/log/',
                        help='set directory to store checkpointed models')
 
-        parser.add_argument('--rnn_size', type=int, default=256,
+        parser.add_argument('--rnn_size', type=int, default=128,
                        help='set size of RNN hidden state')
 
-        parser.add_argument('--embedding_size', type=int, default=100,
+        parser.add_argument('--embedding_size', type=int, default=128,
                        help='set size of word embedding')
 
         parser.add_argument('--num_layers', type=int, default=1,
@@ -64,22 +67,24 @@ class Trainer():
         parser.add_argument('--rnncell', default='gru',
                        help='set the cell of rnn, eg. rnn, gru, or lstm')
 
-        parser.add_argument('--attention', type=bool, default=True,
+        parser.add_argument('--attention', type=bool, default=False,
                        help='set attention mode or not')
 
-        parser.add_argument('--batch_size', type=int, default=128,
+        parser.add_argument('--batch_size', type=int, default=8,
+        #parser.add_argument('--batch_size', type=int, default=32,
                        help='set minibatch size')
 
-        parser.add_argument('--seq_length', type=int, default=16,
+        parser.add_argument('--seq_length', type=int, default=32,
                        help='set RNN sequence length')
 
         parser.add_argument('--num_epochs', type=int, default=100000,
                        help='set number of epochs')
 
-        parser.add_argument('--save_every', type=int, default=200,
+        parser.add_argument('--save_every', type=int, default=400,
+        #parser.add_argument('--save_every', type=int, default=50,
                        help='set save frequency while training')
 
-        parser.add_argument('--grad_clip', type=float, default=1.0,
+        parser.add_argument('--grad_clip', type=float, default=5,
                        help='set clip gradients when back propagation')
 
         parser.add_argument('--learning_rate', type=float, default=0.001,
@@ -88,10 +93,11 @@ class Trainer():
         parser.add_argument('--decay_rate', type=float, default=1.0,
                        help='set decay rate for rmsprop')                       
 
-        parser.add_argument('--keep', type=bool, default=True,
+        parser.add_argument('--keep', type=bool, default=False,
 		       help='init from trained model')
 
-	parser.add_argument('--pretrained', type=bool, default=True,
+	## pretrained has bug now, so don't use it
+	parser.add_argument('--pretrained', type=bool, default=False,
 		       help='init from pre-trained model')
 
         args = parser.parse_args()
@@ -100,20 +106,29 @@ class Trainer():
     def train(self,args):
 	''' import data, train model, save model
 	'''
+	args.data_dir = args.data_dir+args.style+'/'
+	args.save_dir = args.save_dir+args.style+'/'
 	print(args)
 	if args.attention is True:
 	    print('attention mode')
-	    '''
-	    args.save_dir = './save/atten/'
-	    args.log_dir = './log/atten/'
-	    '''
         text_parser = TextParser(args)
         args.vocab_size = text_parser.vocab_size
 	if args.pretrained is True:
+	    raise ValueError('pretrained has bug now, so don"t set it to be True now!!!')
 	    if args.keep is False:
 		raise ValueError('when pre-trained is True, keep must be true!')
 	    print("pretrained and keep mode...")
+	    print("restoring pretrained model file")
             ckpt = tf.train.get_checkpoint_state("/home/pony/github/jaylyrics_generation_tensorflow/data/pre-trained/")
+	    if os.path.exists(os.path.join("./data/pre-trained/",'config.pkl')) and \
+		os.path.exists(os.path.join("./data/pre-trained/",'words_vocab.pkl')) and \
+		ckpt and ckpt.model_checkpoint_path:
+                with open(os.path.join("./data/pre-trained/", 'config.pkl'), 'rb') as f:
+                    saved_model_args = cPickle.load(f)
+                with open(os.path.join("./data/pre-trained/", 'words_vocab.pkl'), 'rb') as f:
+                    saved_words, saved_vocab = cPickle.load(f)
+	    else:
+		raise ValueError('configuration doesn"t exist!')
 	else:
 	    ckpt = tf.train.get_checkpoint_state(args.save_dir)
 	    
@@ -129,18 +144,6 @@ class Trainer():
 	    else:
 		raise ValueError('configuration doesn"t exist!')
 
-	if args.keep is True and args.pretrained is True:
-            # check if all necessary files exist 
-	    if os.path.exists(os.path.join("./data/pre-trained/",'config.pkl')) and \
-		os.path.exists(os.path.join("./data/pre-trained/",'words_vocab.pkl')) and \
-		ckpt and ckpt.model_checkpoint_path:
-                with open(os.path.join("./data/pre-trained/", 'config.pkl'), 'rb') as f:
-                    saved_model_args = cPickle.load(f)
-                with open(os.path.join("./data/pre-trained/", 'words_vocab.pkl'), 'rb') as f:
-                    saved_words, saved_vocab = cPickle.load(f)
-	    else:
-		raise ValueError('configuration doesn"t exist!')
-
 	if args.model == 'seq2seq_rnn':
             model = Model_rnn(args)
 	else:
@@ -150,8 +153,6 @@ class Trainer():
 	all_num_params = count_params(model,mode='all')
 	args.num_trainable_params = trainable_num_params
 	args.num_all_params = all_num_params
-	print(args.num_trainable_params) 
-	print(args.num_all_params) 
         with open(os.path.join(args.save_dir, 'config.pkl'), 'wb') as f:
             cPickle.dump(args, f)
         with open(os.path.join(args.save_dir, 'words_vocab.pkl'), 'wb') as f:
@@ -165,25 +166,33 @@ class Trainer():
 		print('Initializing')
     	        sess.run(model.initial_op)
 
+            sess.run(tf.assign(model.lr, args.learning_rate))
             for e in range(args.num_epochs):
                 start = time.time()
-                sess.run(tf.assign(model.lr, args.learning_rate * (args.decay_rate ** e)))
-	        model.initial_state = tf.convert_to_tensor(model.initial_state) 
+		model.initial_state = tf.convert_to_tensor(model.initial_state) 
                 state = model.initial_state.eval()
-		attention_states = sess.run(tf.truncated_normal([args.batch_size, model.attn_length, model.attn_size],stddev=0.1,dtype=tf.float32))
 		total_loss = []
                 for b in range(text_parser.num_batches):
                     x, y = text_parser.next_batch()
-
 		    if args.attention is True:
-	                feed = {model.input_data: x, model.targets: y, model.initial_state: state, model.attention_states:attention_states}
+		        attention_states = sess.run(tf.truncated_normal([args.batch_size,
+						    model.attn_length, model.attn_size],
+						    stddev=0.1,dtype=tf.float32))
+
+	                feed = {model.input_data: x, model.targets: y, 
+				model.initial_state: state, 
+				model.attention_states:attention_states}
+
 	    	    else:
-                        feed = {model.input_data: x, model.targets: y, model.initial_state: state}
+                        feed = {model.input_data: x, 
+				model.targets: y, 
+				model.initial_state: state}
 
-                    train_loss, state, lr,  _ = sess.run([model.cost, model.final_state, model.lr, model.train_op], feed)
-
+                    train_loss, state, _ = sess.run([model.cost, 
+						     model.final_state, 
+						     model.train_op], 
+						     feed)
 		    total_loss.append(train_loss)
-		    print("learning rate: %f" % lr)
                     print("{}/{} (epoch {}), train_loss = {:.3f}" \
                                 .format(e * text_parser.num_batches + b, \
                                 args.num_epochs * text_parser.num_batches, \
@@ -197,6 +206,9 @@ class Trainer():
 		ave_loss = np.array(total_loss).mean()
 		logging(model,ave_loss,e,delta_time,mode='train')
 		if ave_loss < 0.1:
+                    checkpoint_path = os.path.join(args.save_dir, 'model.ckpt')
+                    model.saver.save(sess, checkpoint_path, global_step = e)
+                    print("model has been saved in:"+str(checkpoint_path))
 		    break
 
 if __name__ == '__main__':

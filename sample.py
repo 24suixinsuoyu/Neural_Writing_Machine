@@ -38,11 +38,17 @@ from seq2seq_rnn import Model
 def main():
     # get arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('--save_dir', type=str, default='/home/pony/github/jaylyrics_generation_tensorflow/save',
-                       help='model directory to store checkpointed models')
-    parser.add_argument('-n', type=int, default=100,
+
+    parser.add_argument('--style', default='novel',
+                       help='set the type of generating sequence,egs: novel, jay, linxi, tangshi, duilian')
+
+    parser.add_argument('--save_dir', type=str, 
+			 default='/home/pony/github/jaylyrics_generation_tensorflow/save/',
+                         help='model directory to store checkpointed models')
+
+    parser.add_argument('--n', type=int, default=100,
                        help='number of words to sample')
-    parser.add_argument('--start', default=u'圣诞节快乐',
+    parser.add_argument('--start', default=u'简单',
                        help='prime text')
     parser.add_argument('--sample', type=str, default='weighted',
                        help='three choices:argmax,weighted,combined')
@@ -52,6 +58,7 @@ def main():
 
 def sample(args):
     # import configuration
+    args.save_dir = args.save_dir + args.style + '/'
     with open(os.path.join(args.save_dir, 'config.pkl'), 'rb') as f:
         saved_args = cPickle.load(f)
     with open(os.path.join(args.save_dir, 'words_vocab.pkl'), 'rb') as f:
