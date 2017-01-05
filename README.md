@@ -1,8 +1,57 @@
 # NeuralWritingMachine
-Neural Writing Machine (NWM) can write styles of documents such like * Chinese poems *, * couplets *, * novel *, * lyrics of Jay Chou or Xi Lin *.
-使用基于LSTM的seq2seq模型并结合注意力机制来生成周杰伦歌词，详情请关注我的微信公众号：deeplearningdigest
+Neural Writing Machine (NWM) can write styles of documents such like *Chinese poems*, *couplets*, *novel*, *lyrics of Jay Chou or Xi Lin*. NWM is based on end-to-end RNN encoder-decoder approach, and can be combined with attention mechanism. For more details, please visit my wechat public media:**deeplearningdigest**.
 
-可以使用自定义的大语料库，放在data/pre-trained文件夹中即可，训练好了语言模型之后，可以使用该网络参数来初始化到小型语料库上（例如周杰伦歌词），这时候需要设定`keep=True `以及` pretrained=True `。
+We provide four types of text databases, which are:
++ Chinese Poems
++ Chinese Couplets
++ Chinese Novels
++ Lyrics of Jay Chou and Xi Lin
+
+```python
+usage: train.py [-h] [--style STYLE] [--data_dir DATA_DIR]
+                [--save_dir SAVE_DIR] [--log_dir LOG_DIR]
+                [--rnn_size RNN_SIZE] [--embedding_size EMBEDDING_SIZE]
+                [--num_layers NUM_LAYERS] [--model MODEL] [--rnncell RNNCELL]
+                [--attention ATTENTION] [--batch_size BATCH_SIZE]
+                [--seq_length SEQ_LENGTH] [--num_epochs NUM_EPOCHS]
+                [--save_every SAVE_EVERY] [--grad_clip GRAD_CLIP]
+                [--learning_rate LEARNING_RATE] [--decay_rate DECAY_RATE]
+                [--keep KEEP] [--pretrained PRETRAINED]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --style STYLE         set the type of generating sequence,egs: poem,
+                        couplet, novel, LX, FWS
+  --data_dir DATA_DIR   set the data directory which contains new.txt
+  --save_dir SAVE_DIR   set directory to store checkpointed models
+  --log_dir LOG_DIR     set directory to store checkpointed models
+  --rnn_size RNN_SIZE   set size of RNN hidden state
+  --embedding_size EMBEDDING_SIZE
+                        set size of word embedding
+  --num_layers NUM_LAYERS
+                        set number of layers in the RNN
+  --model MODEL         set the model
+  --rnncell RNNCELL     set the cell of rnn, eg. rnn, gru, or lstm
+  --attention ATTENTION
+                        set attention mode or not
+  --batch_size BATCH_SIZE
+                        set minibatch size
+  --seq_length SEQ_LENGTH
+                        set RNN sequence length
+  --num_epochs NUM_EPOCHS
+                        set number of epochs
+  --save_every SAVE_EVERY
+                        set save frequency while training
+  --grad_clip GRAD_CLIP
+                        set clip gradients when back propagation
+  --learning_rate LEARNING_RATE
+                        set learning rate
+  --decay_rate DECAY_RATE
+                        set decay rate for rmsprop
+  --keep KEEP           init from trained model
+  --pretrained PRETRAINED
+                        init from pre-trained model
+```
 
 预训练好的模型（batch_size=16, seq_length=16）下载地址：https://pan.baidu.com/s/1i5E2Vq9
 
