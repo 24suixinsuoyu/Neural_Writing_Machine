@@ -1,6 +1,6 @@
 # NeuralWritingMachine
 ![image](https://github.com/zzw922cn/NeuralWritingMachine/blob/master/main_page.png)
-Neural Writing Machine (NWM) can write styles of documents such like *Chinese poems*, *couplets*, *novel*, *lyrics of Jay Chou or Xi Lin*. NWM is based on end-to-end RNN encoder-decoder approach, and can be combined with attention mechanism. For more details, please visit my wechat public media:**deeplearningdigest**.
+**Neural Writing Machine (NWM)** can write styles of documents such like *Chinese poems*, *couplets*, *novel*, *lyrics of Jay Chou or Xi Lin*. NWM is based on end-to-end RNN encoder-decoder approach, and can be combined with attention mechanism. For more details, please visit my wechat public media:**deeplearningdigest**.
 
 We provide four types of text databases, which are:
 + Chinese Poems
@@ -96,7 +96,9 @@ There are three methods for sampling, they are `argmax`, `weighted` and `combine
 
 I suggest that you should choose the `weighted` sampling.
 ## Generation Examples
-使用`从前`作为种子序列，生成歌词如下：
+### set the seed sequence to be `清风`, the generated Chinese poem-style:
+
+### set the seed sequence to be `从前`, the generated FWS-style:
 
 ```
 从前进开封 出水芙蓉加了星
