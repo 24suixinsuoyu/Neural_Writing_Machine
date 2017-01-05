@@ -1,4 +1,5 @@
-# jaylyrics_generation_tensorflow
+# NeuralWritingMachine
+Neural Writing Machine (NWM) can write styles of documents such like Chinese poems, couplets, lyrics of Jay Chou or Xi Lin.
 使用基于LSTM的seq2seq模型并结合注意力机制来生成周杰伦歌词，详情请关注我的微信公众号：deeplearningdigest
 
 可以使用自定义的大语料库，放在data/pre-trained文件夹中即可，训练好了语言模型之后，可以使用该网络参数来初始化到小型语料库上（例如周杰伦歌词），这时候需要设定`keep=True `以及` pretrained=True `。
