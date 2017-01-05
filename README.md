@@ -96,9 +96,12 @@ There are three methods for sampling, they are `argmax`, `weighted` and `combine
 
 I suggest that you should choose the `weighted` sampling.
 ## Generation Examples
-### set the seed sequence to be `清风`, the generated Chinese poem-style:
-
-### set the seed sequence to be `从前`, the generated FWS-style:
+### Poem:
+```
+一春落去细复来，画眉峰上吴支路。一去紫露微月，夜深锁五月黑。
+鸣筝鸟绿青子，风雨更吹魂。恨水来似花云尽，愁尽落灯红。
+```
+### FWS-style Lyric:
 
 ```
 从前进开封 出水芙蓉加了星
