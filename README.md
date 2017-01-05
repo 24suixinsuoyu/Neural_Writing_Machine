@@ -7,7 +7,9 @@ We provide four types of text databases, which are:
 + Chinese Novels
 + Lyrics of Jay Chou and Xi Lin
 
-```python
+Usage of NWM is as follows:
+
+```
 usage: train.py [-h] [--style STYLE] [--data_dir DATA_DIR]
                 [--save_dir SAVE_DIR] [--log_dir LOG_DIR]
                 [--rnn_size RNN_SIZE] [--embedding_size EMBEDDING_SIZE]
@@ -53,32 +55,46 @@ optional arguments:
                         init from pre-trained model
 ```
 
-预训练好的模型（batch_size=16, seq_length=16）下载地址：https://pan.baidu.com/s/1i5E2Vq9
+## Environment
+- Tensorflow rc0.12
+- Python2.7
+- Numpy
 
-## 环境
-基于Tensorflow rc0.12版本，Python2.7，支持CPU/GPU。
+## Training
+If you train for the first time, you can input 
+`python train.py --style=poem`
 
-## 训练
-`python train.py `
+If you want to train from the restored model, you can input
+`python train.py --style=poem --keep=True`
 
-如果要使用基于注意力的解码器，那么请在train.py文件中指定attention为True，或者在命令行使用如下：
+NWM would check for the model file and save to the specified folder automatically!
 
-`python train.py attention=True `
+## Generation
+You can sample from the trained model to generate new documents, usage is as follows:
+```
+usage: sample.py [-h] [--style STYLE] [--save_dir SAVE_DIR] [--n N]
+                 [--start START] [--sample SAMPLE]
 
-## 抽样生成单词
-`python sample.py `
+optional arguments:
+  -h, --help           show this help message and exit
+  --style STYLE        set the type of generating sequence,egs: novel, jay,
+                       linxi, tangshi, duilian
+  --save_dir SAVE_DIR  model directory to store checkpointed models
+  --n N                number of words to sample
+  --start START        prime text
+  --sample SAMPLE      three choices:argmax,weighted,combined
+```
 
-抽样有三种方法，分别是argmax、weighted、combined，它们的作用分别是
+There are three methods for sampling, they are `argmax`, `weighted` and `combined`.
 
-`argmax `:每一步都是根据分布概率得到概率最大的那个汉字
+`argmax `: generate the word with highest probability at each timestep
 
-`weighted `:每一步都是根据概率分布抽样得到汉字
+`weighted `: sample the word with weighted probability at each timestep
 
-`combined `:每次遇到句号时，就会根据概率分布抽样；而其余情况都是得到概率最大的汉字
+`combined `: generate the word with highest probability at each timestep except that when the previous word is a marker of full stop, which is `。`.
 
-实际情况表明，使用`weighted `可以得到最佳的生成效果，而使用`argmax `或者 `combined `容易导致重复抽样的问题。
-
-## 生成序列案例
+I suggest that you should choose the `weighted` sampling.
+## Generation Examples
 使用`从前`作为种子序列，生成歌词如下：
 
 ```
