@@ -40,16 +40,16 @@ class Trainer():
     def __init__(self):
 
         parser = argparse.ArgumentParser()
-        parser.add_argument('--style', default='novel',
+        parser.add_argument('--style', default='zhaolei',
                        help='set the type of generating sequence,egs: novel, jay, linxi, tangshi, duilian')
 
-        parser.add_argument('--data_dir', default='/home/pony/github/jaylyrics_generation_tensorflow/data/',
+        parser.add_argument('--data_dir', default='/home/pony/github/NeuralWritingMachine/data/',
                        help='set the data directory which contains new.txt')
 
-        parser.add_argument('--save_dir', default='/home/pony/github/jaylyrics_generation_tensorflow/save/',
+        parser.add_argument('--save_dir', default='/home/pony/github/NeuralWritingMachine/save/',
                        help='set directory to store checkpointed models')
 
-        parser.add_argument('--log_dir', default='/home/pony/github/jaylyrics_generation_tensorflow/log/',
+        parser.add_argument('--log_dir', default='/home/pony/github/NeuralWritingMachine/log/',
                        help='set directory to store checkpointed models')
 
         parser.add_argument('--rnn_size', type=int, default=128,
@@ -70,7 +70,7 @@ class Trainer():
         parser.add_argument('--attention', type=bool, default=False,
                        help='set attention mode or not')
 
-        parser.add_argument('--batch_size', type=int, default=8,
+        parser.add_argument('--batch_size', type=int, default=16,
         #parser.add_argument('--batch_size', type=int, default=32,
                        help='set minibatch size')
 

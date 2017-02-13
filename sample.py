@@ -39,16 +39,16 @@ def main():
     # get arguments
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--style', default='novel',
+    parser.add_argument('--style', default='zhaolei',
                        help='set the type of generating sequence,egs: novel, jay, linxi, tangshi, duilian')
 
     parser.add_argument('--save_dir', type=str, 
-			 default='/home/pony/github/jaylyrics_generation_tensorflow/save/',
+			 default='/home/pony/github/NeuralWritingMachine/save/',
                          help='model directory to store checkpointed models')
 
-    parser.add_argument('--n', type=int, default=100,
+    parser.add_argument('--n', type=int, default=200,
                        help='number of words to sample')
-    parser.add_argument('--start', default=u'简单',
+    parser.add_argument('--start', default=u'我的姑娘你在哪儿',
                        help='prime text')
     parser.add_argument('--sample', type=str, default='weighted',
                        help='three choices:argmax,weighted,combined')
@@ -75,7 +75,8 @@ def sample(args):
             saver.restore(sess, ckpt.model_checkpoint_path)
 	    #args.start = args.start.decode('gbk')
             literature = model.sample(sess, words, vocab, args.n, args.start, args.sample)
-    with codecs.open('/home/pony/github/jaylyrics_generation_tensorflow/result/sequence.txt','w','utf-8') as f:
+    with codecs.open('/home/pony/github/NeuralWritingMachine/result/sequence.txt','a','utf-8') as f:
+        f.write(args.style+'\tnum:'+str(args.n)+'\n')
         f.write(literature+'\n\n')
     print(literature.encode('utf-8'))
 

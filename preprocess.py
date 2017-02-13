@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-''' lyrics generation
+''' text parser for chinese documents dataset
 author:
 
       iiiiiiiiiiii            iiiiiiiiiiii         !!!!!!!             !!!!!!    
