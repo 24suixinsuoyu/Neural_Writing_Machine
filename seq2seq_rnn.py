@@ -15,6 +15,10 @@ author:
      ##############          ##############               `#         #     
      
 date:2016-12-07
+====================================
+Note:
+attention encoder/decoder with some bugs will be removed soon
+all rnn encoder/decoder will be replaced by dynamic version.
 '''
 from __future__ import absolute_import
 from __future__ import division
