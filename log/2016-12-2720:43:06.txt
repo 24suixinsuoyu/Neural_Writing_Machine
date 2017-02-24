@@ -1,3 +1,0 @@
-20:58:47 12/27/16 CST
-Epoch:1 train error rate:4.1233
-Epoch:1 train time:938.724974155 s

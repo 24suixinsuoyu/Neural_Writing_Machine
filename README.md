@@ -2,7 +2,7 @@
 ![image](https://github.com/zzw922cn/NeuralWritingMachine/blob/master/main_page.png)
 
 ## Update
-Neural Writing Machine has been updated to support TensorFlow r1.0! --2017.2.24
++ Neural Writing Machine has been updated to support TensorFlow r1.0! --2017.2.24
 
 ## Introduction and Usage
 **Neural Writing Machine (NWM)** can write styles of documents such like *Chinese poems*, *couplets*, *novel*, *lyrics of Jay Chou or Xi Lin*. NWM is based on end-to-end RNN encoder-decoder approach, and can be combined with attention mechanism. For more details, please visit my wechat public media:**deeplearningdigest**.
@@ -127,4 +127,13 @@ I suggest that you should choose the `weighted` sampling.
 反方向左右都逢源不恐 只能永远读着对白
 ```
 
+### chatbot style
+```
+A: 在吗？
+B: 在
+A: 有空吗？
+B: 没空呢
+A: ...
+B: ...
+```
 

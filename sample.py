@@ -43,7 +43,7 @@ def main():
                        help='set the type of generating sequence,egs: novel, jay, linxi, tangshi, duilian')
 
     parser.add_argument('--save_dir', type=str, 
-			 default='/home/pony/github/NeuralWritingMachine/save/',
+			 default='/home/pony/github/data/NWM/save/',
                          help='model directory to store checkpointed models')
 
     parser.add_argument('--n', type=int, default=200,
@@ -59,6 +59,8 @@ def main():
 def sample(args):
     # import configuration
     args.save_dir = args.save_dir + args.style + '/'
+    if not os.path.exists(args.save_dir):
+        os.makedirs(args.save_dir)
     with open(os.path.join(args.save_dir, 'config.pkl'), 'rb') as f:
         saved_args = cPickle.load(f)
     with open(os.path.join(args.save_dir, 'words_vocab.pkl'), 'rb') as f:
@@ -75,7 +77,7 @@ def sample(args):
             saver.restore(sess, ckpt.model_checkpoint_path)
 	    #args.start = args.start.decode('gbk')
             literature = model.sample(sess, words, vocab, args.n, args.start, args.sample)
-    with codecs.open('/home/pony/github/NeuralWritingMachine/result/sequence.txt','a','utf-8') as f:
+    with codecs.open('/home/pony/github/data/NWM/result/sequence.txt','a','utf-8') as f:
         f.write(args.style+'\tnum:'+str(args.n)+'\n')
         f.write(literature+'\n\n')
     print(literature.encode('utf-8'))

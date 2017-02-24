@@ -43,13 +43,13 @@ class Trainer():
         parser.add_argument('--style', default='zhaolei',
                        help='set the type of generating sequence,egs: novel, jay, linxi, tangshi, duilian')
 
-        parser.add_argument('--data_dir', default='/home/pony/github/NeuralWritingMachine/data/',
+        parser.add_argument('--data_dir', default='/home/pony/github/data/NWM/data/',
                        help='set the data directory which contains new.txt')
 
-        parser.add_argument('--save_dir', default='/home/pony/github/NeuralWritingMachine/save/',
+        parser.add_argument('--save_dir', default='/home/pony/github/data/NWM/save/',
                        help='set directory to store checkpointed models')
 
-        parser.add_argument('--log_dir', default='/home/pony/github/NeuralWritingMachine/log/',
+        parser.add_argument('--log_dir', default='/home/pony/github/data/NWM/log/',
                        help='set directory to store checkpointed models')
 
         parser.add_argument('--rnn_size', type=int, default=128,
@@ -108,11 +108,14 @@ class Trainer():
 	'''
 	args.data_dir = args.data_dir+args.style+'/'
 	args.save_dir = args.save_dir+args.style+'/'
+	if not os.path.exists(args.save_dir):
+            os.makedirs(args.save_dir)
 	print(args)
 	if args.attention is True:
 	    print('attention mode')
         text_parser = TextParser(args)
         args.vocab_size = text_parser.vocab_size
+
 	if args.pretrained is True:
 	    raise ValueError('pretrained has bug now, so don"t set it to be True now!!!')
 	    if args.keep is False:
