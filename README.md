@@ -1,5 +1,10 @@
 # NeuralWritingMachine
 ![image](https://github.com/zzw922cn/NeuralWritingMachine/blob/master/main_page.png)
+
+## Update
+Neural Writing Machine has been updated to support TensorFlow r1.0! --2017.2.24
+
+## Introduction and Usage
 **Neural Writing Machine (NWM)** can write styles of documents such like *Chinese poems*, *couplets*, *novel*, *lyrics of Jay Chou or Xi Lin*. NWM is based on end-to-end RNN encoder-decoder approach, and can be combined with attention mechanism. For more details, please visit my wechat public media:**deeplearningdigest**.
 
 We provide four types of text databases, which are:

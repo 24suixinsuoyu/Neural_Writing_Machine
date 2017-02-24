@@ -21,8 +21,10 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
-from tensorflow.python.ops import rnn_cell
-from tensorflow.python.ops import seq2seq
+from tensorflow.contrib.rnn.python.ops import rnn_cell
+from tensorflow.contrib.rnn import GRUCell
+from tensorflow.contrib.rnn import MultiRNNCell
+from tensorflow.contrib.legacy_seq2seq.python.ops import seq2seq
 from decoder import attention_decoder
 
 import numpy as np
@@ -40,14 +42,14 @@ class Model():
         if args.rnncell == 'rnn':
             cell_fn = rnn_cell.BasicRNNCell
         elif args.rnncell == 'gru':
-            cell_fn = rnn_cell.GRUCell
+            cell_fn = GRUCell
         elif args.rnncell == 'lstm':
             cell_fn = rnn_cell.BasicLSTMCell
         else:
             raise Exception("rnncell type not supported: {}".format(args.rnncell))
 
         cell = cell_fn(args.rnn_size)
-        self.cell = rnn_cell.MultiRNNCell([cell] * args.num_layers)
+        self.cell = MultiRNNCell([cell] * args.num_layers)
         self.input_data = tf.placeholder(tf.int32, [args.batch_size, args.seq_length])
         self.targets = tf.placeholder(tf.int32, [args.batch_size, args.seq_length])
         self.initial_state = self.cell.zero_state(args.batch_size, tf.float32)
@@ -58,7 +60,8 @@ class Model():
             softmax_w = build_weight([args.rnn_size, args.vocab_size],name='soft_w')
             softmax_b = build_weight([args.vocab_size],name='soft_b')
             word_embedding = build_weight([args.vocab_size, args.embedding_size],name='word_embedding')
-            inputs_list = tf.split(1, args.seq_length, tf.nn.embedding_lookup(word_embedding, self.input_data))
+            #inputs_list = tf.split(1, args.seq_length, tf.nn.embedding_lookup(word_embedding, self.input_data))
+            inputs_list = tf.split(tf.nn.embedding_lookup(word_embedding, self.input_data), args.seq_length, 1)
             inputs_list = [tf.squeeze(input_, [1]) for input_ in inputs_list]
         def loop(prev, _):
             prev = tf.matmul(prev, softmax_w) + softmax_b
@@ -66,12 +69,12 @@ class Model():
             return tf.nn.embedding_lookup(embedding, prev_symbol)
 
 	if not args.attention:
-            outputs, last_state = seq2seq.rnn_decoder(inputs_list, self.initial_state, self.cell, loop_function=loop if infer else None, scope='rnnlm')
+            outputs, last_state = seq2seq.rnn_decoder(inputs_list, self.initial_state, self.cell, loop_function=loop if infer else None, scope='rnnlm')	
 	else:
             outputs, last_state = attention_decoder(inputs_list, self.initial_state, self.attention_states, self.cell, loop_function=loop if infer else None, scope='rnnlm')
 
         self.final_state = last_state
-        output = tf.reshape(tf.concat(1, outputs), [-1, args.rnn_size])
+        output = tf.reshape(tf.concat(outputs, 1), [-1, args.rnn_size])
         self.logits = tf.matmul(output, softmax_w) + softmax_b
         self.probs = tf.nn.softmax(self.logits)
         loss = seq2seq.sequence_loss_by_example([self.logits],
