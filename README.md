@@ -1,7 +1,7 @@
 # NeuralWritingMachine
 ![image](https://github.com/zzw922cn/NeuralWritingMachine/blob/master/main_page.png)
 
-## Update
+## Recent Updates
 - [x] **Support TensorFlow r1.0** (2017-02-24)
 
 ## Introduction and Usage
