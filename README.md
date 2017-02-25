@@ -2,7 +2,7 @@
 ![image](https://github.com/zzw922cn/NeuralWritingMachine/blob/master/main_page.png)
 
 ## Update
-+ Neural Writing Machine has been updated to support TensorFlow r1.0! --2017.2.24
+- [x] **Support TensorFlow r1.0** (2017-02-24)
 
 ## Introduction and Usage
 **Neural Writing Machine (NWM)** can write styles of documents such like *Chinese poems*, *couplets*, *novel*, *lyrics of Jay Chou or Xi Lin*. NWM is based on end-to-end RNN encoder-decoder approach, and can be combined with attention mechanism. For more details, please visit my wechat public media:**deeplearningdigest**.
@@ -137,3 +137,7 @@ A: ...
 B: ...
 ```
 
+## Future Work
+- [ ] Add pretraining support
+- [ ] Add attention mechanism
+- [ ] Add dynamic computation graph without padding
