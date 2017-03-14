@@ -1,8 +1,15 @@
 # NeuralWritingMachine
-![image](https://github.com/zzw922cn/NeuralWritingMachine/blob/master/main_page.png)
+![image](https://github.com/zzw922cn/Neural_Writing_Machine/blob/master/main_page.png)
+
+## test Updates
+- [x] **Test 1.0 version has born** (2017-02-26)
 
 ## Recent Updates
 - [x] **Support TensorFlow r1.0** (2017-02-24)
+- [x] **Support word vector visualization** (2017-03-24)
+
+The following picture shows a top-100 word-vec visualization for Chinese
+![image](https://github.com/zzw922cn/Neural_Writing_Machine/blob/master/100.png)
 
 ## Introduction and Usage
 **Neural Writing Machine (NWM)** can write styles of documents such like *Chinese poems*, *couplets*, *novel*, *lyrics of Jay Chou or Xi Lin*. NWM is based on end-to-end RNN encoder-decoder approach, and can be combined with attention mechanism. For more details, please visit my wechat public media:**deeplearningdigest**.

@@ -32,15 +32,15 @@ import os
 from six.moves import cPickle
 import codecs
 
-from preprocess import TextParser
-from seq2seq_rnn import Model
+from preprocess.preprocess import TextParser
+from models.seq2seq_rnn import Model
 
 def main():
     # get arguments
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--style', default='zhaolei',
-                       help='set the type of generating sequence,egs: novel, jay, linxi, tangshi, duilian')
+    parser.add_argument('--style', default='all',
+                       help='set the type of generating sequence,egs: novel, jay, linxi, tangshi, duilian, zhaolei, all')
 
     parser.add_argument('--save_dir', type=str, 
 			 default='/home/pony/github/data/NWM/save/',
@@ -48,7 +48,7 @@ def main():
 
     parser.add_argument('--n', type=int, default=200,
                        help='number of words to sample')
-    parser.add_argument('--start', default=u'我的姑娘你在哪儿',
+    parser.add_argument('--start', default=u'我的姑娘',
                        help='prime text')
     parser.add_argument('--sample', type=str, default='weighted',
                        help='three choices:argmax,weighted,combined')
@@ -71,11 +71,9 @@ def sample(args):
 	# initialize the model
         tf.global_variables_initializer().run()
         saver = tf.train.Saver(tf.global_variables())
-	
         ckpt = tf.train.get_checkpoint_state(args.save_dir)
         if ckpt and ckpt.model_checkpoint_path:
             saver.restore(sess, ckpt.model_checkpoint_path)
-	    #args.start = args.start.decode('gbk')
             literature = model.sample(sess, words, vocab, args.n, args.start, args.sample)
     with codecs.open('/home/pony/github/data/NWM/result/sequence.txt','a','utf-8') as f:
         f.write(args.style+'\tnum:'+str(args.n)+'\n')

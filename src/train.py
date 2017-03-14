@@ -25,23 +25,22 @@ sys.dont_write_bytecode = True
 import numpy as np
 import tensorflow as tf
 
-from preprocess import TextParser
-from seq2seq_rnn import Model as Model_rnn
-from utils import count_params
-from utils import logging
-from utils import build_weight
+from preprocess.preprocess import TextParser
+from models.seq2seq_rnn import Model as Model_rnn
+from utils.utils import count_params, logging, build_weight
 
 import argparse
 import time
 import os
 from six.moves import cPickle
+import codecs
 
 class Trainer():
     def __init__(self):
 
         parser = argparse.ArgumentParser()
-        parser.add_argument('--style', default='zhaolei',
-                       help='set the type of generating sequence,egs: novel, jay, linxi, tangshi, duilian')
+        parser.add_argument('--style', default='all',
+                       help='set the type of generating sequence,egs: novel, jay, linxi, tangshi, duilian, zhaolei, all')
 
         parser.add_argument('--data_dir', default='/home/pony/github/data/NWM/data/',
                        help='set the data directory which contains new.txt')
@@ -58,33 +57,33 @@ class Trainer():
         parser.add_argument('--embedding_size', type=int, default=128,
                        help='set size of word embedding')
 
-        parser.add_argument('--num_layers', type=int, default=1,
+        parser.add_argument('--num_layers', type=int, default=2,
                        help='set number of layers in the RNN')
 
         parser.add_argument('--model', default='seq2seq_rnn',
                        help='set the model')
 
-        parser.add_argument('--rnncell', default='gru',
+        parser.add_argument('--rnncell', default='lstm',
                        help='set the cell of rnn, eg. rnn, gru, or lstm')
 
         parser.add_argument('--attention', type=bool, default=False,
                        help='set attention mode or not')
 
-        parser.add_argument('--batch_size', type=int, default=16,
+        parser.add_argument('--batch_size', type=int, default=128,
         #parser.add_argument('--batch_size', type=int, default=32,
                        help='set minibatch size')
 
         parser.add_argument('--seq_length', type=int, default=32,
                        help='set RNN sequence length')
 
-        parser.add_argument('--num_epochs', type=int, default=100000,
+        parser.add_argument('--num_epochs', type=int, default=200000,
                        help='set number of epochs')
 
-        parser.add_argument('--save_every', type=int, default=400,
+        parser.add_argument('--save_every', type=int, default=500,
         #parser.add_argument('--save_every', type=int, default=50,
                        help='set save frequency while training')
 
-        parser.add_argument('--grad_clip', type=float, default=5,
+        parser.add_argument('--grad_clip', type=float, default=20,
                        help='set clip gradients when back propagation')
 
         parser.add_argument('--learning_rate', type=float, default=0.001,
@@ -115,6 +114,7 @@ class Trainer():
 	    print('attention mode')
         text_parser = TextParser(args)
         args.vocab_size = text_parser.vocab_size
+	self.word_embedding_file = os.path.join(args.data_dir, "word_embedding.pkl")
 
 	if args.pretrained is True:
 	    raise ValueError('pretrained has bug now, so don"t set it to be True now!!!')
@@ -150,8 +150,8 @@ class Trainer():
 	if args.model == 'seq2seq_rnn':
             model = Model_rnn(args)
 	else:
-	    # TO ADD OTHER MODEL
 	    pass
+
 	trainable_num_params = count_params(model,mode='trainable')
 	all_num_params = count_params(model,mode='all')
 	args.num_trainable_params = trainable_num_params
@@ -181,7 +181,6 @@ class Trainer():
 		        attention_states = sess.run(tf.truncated_normal([args.batch_size,
 						    model.attn_length, model.attn_size],
 						    stddev=0.1,dtype=tf.float32))
-
 	                feed = {model.input_data: x, model.targets: y, 
 				model.initial_state: state, 
 				model.attention_states:attention_states}
@@ -191,19 +190,25 @@ class Trainer():
 				model.targets: y, 
 				model.initial_state: state}
 
-                    train_loss, state, _ = sess.run([model.cost, 
+                    train_loss, state, _, word_embedding = sess.run([model.cost, 
 						     model.final_state, 
-						     model.train_op], 
+						     model.train_op,
+						     model.word_embedding], 
 						     feed)
 		    total_loss.append(train_loss)
+
                     print("{}/{} (epoch {}), train_loss = {:.3f}" \
                                 .format(e * text_parser.num_batches + b, \
                                 args.num_epochs * text_parser.num_batches, \
                                 e, train_loss))
+
                     if (e*text_parser.num_batches+b)%args.save_every==0: 
                         checkpoint_path = os.path.join(args.save_dir, 'model.ckpt')
                         model.saver.save(sess, checkpoint_path, global_step = e)
                         print("model has been saved in:"+str(checkpoint_path))
+		        np.save(self.word_embedding_file, word_embedding)
+                        print("word embedding matrix has been saved in:"+str(self.word_embedding_file))
+
                 end = time.time()
 		delta_time = end - start
 		ave_loss = np.array(total_loss).mean()
@@ -212,6 +217,8 @@ class Trainer():
                     checkpoint_path = os.path.join(args.save_dir, 'model.ckpt')
                     model.saver.save(sess, checkpoint_path, global_step = e)
                     print("model has been saved in:"+str(checkpoint_path))
+		    np.save(self.word_embedding_file, word_embedding)
+                    print("word embedding matrix has been saved in:"+str(self.word_embedding_file))
 		    break
 
 if __name__ == '__main__':

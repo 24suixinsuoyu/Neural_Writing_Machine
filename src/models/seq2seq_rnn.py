@@ -29,12 +29,13 @@ from tensorflow.contrib.rnn.python.ops import rnn_cell
 from tensorflow.contrib.rnn import GRUCell
 from tensorflow.contrib.rnn import MultiRNNCell
 from tensorflow.contrib.legacy_seq2seq.python.ops import seq2seq
-from decoder import attention_decoder
+from src.models.decoder import attention_decoder
+from tensorflow.contrib.rnn.python.ops import core_rnn_cell_impl
 
 import numpy as np
 import datetime
-from utils import build_weight
-from utils import random_pick
+from src.models.decoder import attention_decoder
+from src.utils.utils import build_weight, random_pick
 
 class Model():
     def __init__(self, args, infer=False):
@@ -48,7 +49,7 @@ class Model():
         elif args.rnncell == 'gru':
             cell_fn = GRUCell
         elif args.rnncell == 'lstm':
-            cell_fn = rnn_cell.BasicLSTMCell
+	    cell_fn = core_rnn_cell_impl.BasicLSTMCell
         else:
             raise Exception("rnncell type not supported: {}".format(args.rnncell))
 
@@ -63,14 +64,13 @@ class Model():
         with tf.variable_scope('rnnlm'):
             softmax_w = build_weight([args.rnn_size, args.vocab_size],name='soft_w')
             softmax_b = build_weight([args.vocab_size],name='soft_b')
-            word_embedding = build_weight([args.vocab_size, args.embedding_size],name='word_embedding')
-            #inputs_list = tf.split(1, args.seq_length, tf.nn.embedding_lookup(word_embedding, self.input_data))
-            inputs_list = tf.split(tf.nn.embedding_lookup(word_embedding, self.input_data), args.seq_length, 1)
+            self.word_embedding = build_weight([args.vocab_size, args.embedding_size],name='word_embedding')
+            inputs_list = tf.split(tf.nn.embedding_lookup(self.word_embedding, self.input_data), args.seq_length, 1)
             inputs_list = [tf.squeeze(input_, [1]) for input_ in inputs_list]
         def loop(prev, _):
             prev = tf.matmul(prev, softmax_w) + softmax_b
             prev_symbol = tf.stop_gradient(tf.argmax(prev, 1))
-            return tf.nn.embedding_lookup(embedding, prev_symbol)
+            return tf.nn.embedding_lookup(self.word_embedding, prev_symbol)
 
 	if not args.attention:
             outputs, last_state = seq2seq.rnn_decoder(inputs_list, self.initial_state, self.cell, loop_function=loop if infer else None, scope='rnnlm')	
@@ -99,7 +99,6 @@ class Model():
 	self.saver = tf.train.Saver(self.var_op,max_to_keep=4,keep_checkpoint_every_n_hours=1)
 
     def sample(self, sess, words, vocab, num=200, start=u'从前', sampling_type=1):
-
 	state = sess.run(self.cell.zero_state(1, tf.float32))
         attention_states = sess.run(tf.truncated_normal([1, self.attn_length, self.attn_size],stddev=0.1,dtype=tf.float32))
 	if type(start) is str:
@@ -126,7 +125,7 @@ class Model():
                 feed = {self.input_data: x, self.initial_state:state}
                 [probs, state] = sess.run([self.probs, self.final_state], feed)
             p = probs[0]
-	    sample = random_pick(p,word,sampling_type)
+	    sample = random_pick(p, word, sampling_type)
             pred = vocab[sample]
             ret += pred
             word = pred
