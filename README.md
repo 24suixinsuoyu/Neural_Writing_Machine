@@ -1,5 +1,4 @@
 # NeuralWritingMachine
-(微信公众号:深度学习每日摘要)
 ![image](https://github.com/zzw922cn/Neural_Writing_Machine/blob/master/main_page.png)
 
 ## test Updates
