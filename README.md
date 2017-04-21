@@ -148,3 +148,6 @@ B: ...
 - [ ] Add pretraining support
 - [ ] Add attention mechanism
 - [ ] Add dynamic computation graph without padding
+
+## Contact Me
+For any questions, welcome to send email to :**zzw922cn@gmail.com**. If you use wechat, you can follow me by searching wechat public media id:**deeplearningdigest**, I would push several articles every week to share my deep learning practices with you. Thanks!
